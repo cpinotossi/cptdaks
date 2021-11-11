@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svred
+  namespace: nsred
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  labels:
+    cbase: ss
+spec:
+  type: LoadBalancer
+  selector:
+    app: dpred
+  ports:
+    - port: 80
+      targetPort: 8080
