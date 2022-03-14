@@ -1,4 +1,9 @@
 {
-    "prefix":"cptdaks",
-    "location":"eastus"
+  "prefix":"cptdagw",
+  "location":"eastus",
+  "cnCertificateFrontend":"test.cptdagw.org",
+  "cnCABackend":"cptdagw.org",
+  "username":"chpinoto",
+  "password":"demo!pass123",
+  "certpassword":"test123!"
 }
