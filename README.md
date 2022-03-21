@@ -3,7 +3,7 @@ simple demo of azure aks with internal loadbalancer and vnet integration
 
 ## AKS and Application Gateway ingress controller
 
-![Overview AKS and AGW](img/aks.agw.01.overview.png "Overview AKS and AGW")
+![Overview AKS and AGW](img/aks.agw.02.overview.png "Overview AKS and AGW")
 
 Based on:
 - [Application Gateway Ingress Controller (AGIC) Annotations Reference](https://github.com/Azure/application-gateway-kubernetes-ingress/blob/master/docs/annotations.md#azure-waf-policy-for-path)
@@ -45,11 +45,14 @@ wafrulegreenid=$(az network application-gateway waf-policy show -n ${prefix}gree
 cp templateapp.yaml k8s/redapp.yaml
 sed -i "s|<wafrulerid>|${wafruleredid}|g" k8s/redapp.yaml
 sed -i "s|<color>|red|g" k8s/redapp.yaml
+cp k8s/greenapp.yaml k8s/blueapp.yaml
+sed -i "s|green|blue|g" k8s/blueapp.yaml
 cp templateapp.yaml greenapp.yaml
 sed -i "s|<wafrulerid>|${wafrulegreenid}|g" k8s/greenapp.yaml
 sed -i "s|<color>|green|g" k8s/greenapp.yaml
 k apply -f k8s/redapp.yaml
 k apply -f k8s/greenapp.yaml
+k apply -f k8s/blueapp.yaml
 ~~~
 
 Wait at least 5min and check afterwards if the ingress controller has already an ip assigned.
@@ -58,15 +61,44 @@ Wait at least 5min and check afterwards if the ingress controller has already an
 k get ingress -A
 ~~~
 
+There have been cases where I needed to delete the current ingress controller to trigger changes on AGW.
+
+~~~ bash
+k delete ingress greenapp -n green
+k delete ingress redapp -n red
+~~~
+
 If the column ADDRESS does show an IP start testing.
+
+Test WAF policy per http listner.
+
+Test for httpListener on host "red.cptdaks.org".
 
 ~~~ bash
 agwpubip=$(kubectl get ingress/redapp -n red -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-curl -H"host: red.cptdaks.org" http://$agwpubip/ # We expect an 200 OK
-curl -H"host: red.cptdaks.org" http://$agwpubip/?test=green # We expect an 403 because of WAF Rule
-curl -H"host: green.cptdaks.org" http://$agwpubip/ # We expect an 200 OK
-curl -H"host: green.cptdaks.org" http://$agwpubip/?test=red # We expect an 403 because of WAF Rule
+curl -s -o /dev/null -w "%{http_code}" -H"host: red.cptdaks.org" http://$agwpubip/ # We expect an 200 OK
+curl -s -o /dev/null -w "%{http_code}" -H"host: red.cptdaks.org" http://$agwpubip/?test=green # We expect an 403
 ~~~
+
+Test for httpListener on host "green.cptdaks.org".
+
+~~~ bash
+curl -s -o /dev/null -w "%{http_code}" -H"host: green.cptdaks.org" http://$agwpubip/ # We expect an 200 OK
+curl -s -o /dev/null -w "%{http_code}" -H"host: green.cptdaks.org" http://$agwpubip/?test=red # We expect an 403 because of WAF Rule
+~~~
+
+Test global WAF policy.
+
+~~~ bash
+curl -s -o /dev/null -w "%{http_code}" -H"host: red.cptdaks.org" http://$agwpubip/?test=blue # We expect an 200 OK because of global WAF policy does only block query value blue.
+curl -s -o /dev/null -w "%{http_code}" -H"host: blue.cptdaks.org" http://$agwpubip/?test=green # We expect an 200 OK because global WAF policy does only block query value blue.
+curl -s -o /dev/null -w "%{http_code}" -H"host: blue.cptdaks.org" http://$agwpubip/?test=blue # We expect an 403 because global WAF policy does block query value blue. 
+~~~
+
+> CONCLUSION
+> The more specific WAF policy will always win.
+> To proof this we will setup a global WAF policy  
+
 
 Clean up.
 
@@ -74,11 +106,26 @@ Clean up.
 az group delete -n $prefix -y
 ~~~
 
-Tip: You should expect to get the public ip of the application gateway which can be checked as follow.
+### Tips
+
+#### Gateway Public IP
+
+You should expect to get the public ip of the application gateway which can be checked as follow.
 
 ~~~ bash
 agwpubipid=$(az network application-gateway show -n $prefix -g $prefix --query frontendIpConfigurations[].publicIpAddress.id -o tsv)
 agwpubip=$(az network public-ip show --ids $agwpubipid --query ipAddress -o tsv)
+~~~
+
+#### Restart the application gateway
+
+### Restart application gateway
+
+Based on https://stackoverflow.com/questions/49788958/how-can-i-restart-application-gateway-in-azure
+
+~~~ bash
+az network application-gateway stop --id $appgwid
+az network application-gateway start --id $appgwid
 ~~~
 
 ## Simple Web App Demo (Work in Progress)
@@ -118,7 +165,7 @@ k get services/svred  -n nsred -o jsonpath='{.status.loadBalancer.ingress[0].ip}
 
 You will need to replace the IP mentioned below with the one received above from the K8s.
 
-~~~ text
+~~~ pwsh
 $prefix="cptdaks"
 $vmid=az vm show -g $prefix -n ${prefix}lin --query id -o tsv
 az network bastion ssh -n ${prefix}bastion -g $prefix --target-resource-id $vmid --auth-type "AAD"

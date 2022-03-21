@@ -1,6 +1,6 @@
 targetScope='resourceGroup'
 
-// var parameters = json(loadTextContent('../parameters.json'))
+var parameters = json(loadTextContent('../parameters.json'))
 param location string = resourceGroup().location
 param myobjectid string
 param myip string
@@ -14,21 +14,21 @@ module vnetModule 'vnet.bicep' = {
   }
 }
 
-// module vmModule 'vm.bicep' = {
-//   name: 'vmDeploy'
-//   params: {
-//     prefix: parameters.prefix
-//     location: location
-//     username: parameters.username
-//     password: parameters.password
-//     myObjectId: myobjectid
-//     postfix: 'lin'
-//     privateip: '10.0.0.4'
-//   }
-//   dependsOn:[
-//     vnetModule
-//   ]
-// }
+module vmModule 'vm.bicep' = {
+  name: 'vmDeploy'
+  params: {
+    prefix: prefix
+    location: location
+    username: parameters.username
+    password: parameters.password
+    myObjectId: myobjectid
+    postfix: 'lin'
+    privateip: '10.0.0.4'
+  }
+  dependsOn:[
+    vnetModule
+  ]
+}
 
 // module sabModule 'sab.bicep' = {
 //   name: 'sabDeploy'
@@ -75,6 +75,9 @@ module agwModule 'agw.bicep' = {
   dependsOn:[
     vnetModule
     acrModule
+    wafRuleRedModule
+    wafRuleGreenModule
+    wafRuleBlueModule
   ]
 }
 
@@ -84,10 +87,6 @@ module wafRuleRedModule 'wafrulered.bicep' = {
     prefix: prefix
     location: location
   }
-  dependsOn:[
-    vnetModule
-    acrModule
-  ]
 }
 
 module wafRuleGreenModule 'wafrulegreen.bicep' = {
@@ -96,10 +95,14 @@ module wafRuleGreenModule 'wafrulegreen.bicep' = {
     prefix: prefix
     location: location
   }
-  dependsOn:[
-    vnetModule
-    acrModule
-  ]
+}
+
+module wafRuleBlueModule 'wafruleblue.bicep' = {
+  name: 'wafRuleBlueDeploy'
+  params: {
+    prefix: prefix
+    location: location
+  }
 }
 
 // module lawModule 'law.bicep' = {

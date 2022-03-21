@@ -5,9 +5,14 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
   name: prefix
 }
 
-resource aks 'Microsoft.ContainerService/containerServices@2017-07-01' existing = {
-  name: prefix
+// resource aks 'Microsoft.ContainerService/containerServices@2017-07-01' existing = {
+//   name: prefix
+// }
+
+resource wafpolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2021-03-01' existing ={
+  name: '${prefix}blue'
 }
+
 
 resource pubip 'Microsoft.Network/publicIPAddresses@2021-03-01' = {
   name: '${prefix}agw'
@@ -23,10 +28,10 @@ resource pubip 'Microsoft.Network/publicIPAddresses@2021-03-01' = {
 resource agw 'Microsoft.Network/applicationGateways@2020-11-01' = {
   name: prefix
   location: location
-  tags: {
-    'ingress-for-aks-cluster-id': aks.id
-    'managed-by-k8s-ingress': '1.5.1/0a4f032f/2022-02-22-18:27T+0000'
-  }
+  // tags: {
+  //   'ingress-for-aks-cluster-id': aks.id
+  //   'managed-by-k8s-ingress': '1.5.1/0a4f032f/2022-02-22-18:27T+0000'
+  // }
   properties: {
     sku: {
       name: 'WAF_v2'
@@ -156,7 +161,11 @@ resource agw 'Microsoft.Network/applicationGateways@2020-11-01' = {
       maxRequestBodySizeInKb: 128
       fileUploadLimitInMb: 100
     }
-  }
+    forceFirewallPolicyAssociation: true
+    firewallPolicy:{
+      id: wafpolicy.id
+    }
+  } 
 }
 
 
