@@ -1,0 +1,212 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: color
+  labels:
+    cbase: ss
+# ---
+
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   namespace: color
+#   name: greenapp
+#   labels:
+#     app: greenapp
+# spec:
+#   containers:
+#   - image: cptdaks.azurecr.io/cpt/ss:1.0
+#     imagePullPolicy: Always
+#     name: greenapp
+#     env:
+#       - name: PORTHTTP
+#         value: "8080"
+#       - name: SCOLOR
+#         value: "green"
+#     ports:
+#     - containerPort: 8080
+#       protocol: TCP
+# ---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: greensvc
+#   namespace: color
+# spec:
+#   selector:
+#     app: greenapp
+#   ports:
+#   - protocol: TCP
+#     port: 80
+#     targetPort: 8080
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: color
+  name: redapp
+  labels:
+    app: redapp
+spec:
+  containers:
+  - image: cptdaks.azurecr.io/cpt/ss:1.0
+    name: redapp
+    imagePullPolicy: Always
+    env:
+      - name: PORTSSL
+        value: "4040"
+      - name: SCOLOR
+        value: "red"
+    ports:
+    - containerPort: 4040
+      protocol: TCP
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redsvc
+  namespace: color
+spec:
+  selector:
+    app: redapp
+  ports:
+  - protocol: TCP
+    port: 443
+    targetPort: 4040
+
+---
+
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: secret-tls
+#   namespace: color
+# data:
+#   tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVYVENDQTBXZ0F3SUJBZ0lVWSsvMUtJVy9yWmRqREkvMFFIa0UzWXN5SC84d0RRWUpLb1pJaHZjTkFRRUwKQlFBd0dURVhNQlVHQTFVRUF3d09ZM0IwWkdGbmR5NXZjbWNnUTBFd0hoY05Nakl3TWpBek1Ea3lORFUwV2hjTgpNak13TWpBek1Ea3lORFUwV2pCbU1Rc3dDUVlEVlFRR0V3SkVSVEVRTUE0R0ExVUVDQXdIUW1GMllYSnBZVEVQCk1BMEdBMVVFQnd3R1RYVnVhV05vTVJrd0Z3WURWUVFLREJCRlpHZGxJRVJsZG1Wc2IzQnRaVzUwTVJrd0Z3WUQKVlFRRERCQjBaWE4wTG1Od2RHUmhaM2N1YjNKbk1JSUNJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBZzhBTUlJQwpDZ0tDQWdFQTJTL01iMXNIYnExMVdwN2RxWmVJeE5ydVlDemg4QkI2VTBGWWtKY3N2U3ptdGwzV3FLSHFvTEVSCjFwQ3BrN0NrVCtzalVHRGcydzNNNmVlWm16UVNHUjRHaFVHaDBQVmpoMi82R2FPT0NCSnhwdzVuRzhGYm5pakIKS3FXbEVvbWF0Wlg1NnBQYUxScnRDbldSOWNvVTV0RURRVDJHaGtML0lvbTg5UlJncXY0eHhFVlY3WkNnSlp4dgp0MGU5UjdqdEtwakZkN1MvakpVL29lNkRSdGlsZUx5UWVuREZUcXB0RlhaTXI1bDRYZWVPVnhMU0V3NklvaXN4CkZISnB2Q0NpREo4U082UlYzZUlrb3hBWGd3VElpVTcyeHNscHhaRHJNSzRWb3NMRTRYbmswNzYwd3VRODNIVGcKUmwzbXdjNnFlSzNNRHlJQzhTcUs0bjdlRm1YdHdKc0pXV0htUE5lTFlhUnZrQXFqV0xtQjM4cy80L0kyZmhrVQphVHk4RTFQeE1sQi9LUTZETCtnblFOYThzU2loTnp3Y3lrT1hCY2NnUVNlODFZMk1KWG5mYXVFNXpMVnkwTStQCjBLVHdMV0ZDUHBIcFVWNjd6cjYwbzhhTnFBWW82SENoM0pwSUROQUMxVWJyK0ZaMW5jZC91cUtybkpiTVc0TFkKTy9XTGo1cm1vTHRXb2VSZ1BvZVB3LzJsNHoyc0ozTnNFM1NodlBveDhZcmJ5U1FtRGRxWERvaC9VVHVqZUdCaQpUdTMzTkIzU1Rrb0NUTnpSRzZ6SHlMYXpjT1lJd25sUHV2TG5lblNLSnhsUCtnT2xhMGVzYzd4YUszSnBIc1NMClhyNWVxKzVJVklUWEcxMGFRS2w4OGV1RDlyRnZNWGtBUVhKem11MTBlM2JuK3RGdURpRUNBd0VBQWFOUU1FNHcKQ3dZRFZSMFBCQVFEQWdRd01CTUdBMVVkSlFRTU1Bb0dDQ3NHQVFVRkJ3TUJNQ29HQTFVZEVRUWpNQ0dDRUhSbApjM1F1WTNCMFpHRm5keTV2Y21lQ0RTb3VZM0IwWkdGbmR5NXZjbWN3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCCkFFYVJabWE2WHYydEVkZmdKV2ZuQUMyWUJwQ1RNelRUWUg0d0pOK3hWZzlOSWtIUHdOTGsvNU1lYUk4a2h6TFkKK041elZDWmdCVEl4eVpwRks4OXYrVlNaakttaisxNjkrL3ZzN0lXMnAwU2NackliWGJSRGVHT3RXWWhJMmhPMApuOTNNUDhMblQydTBLbEVvaGJIZ0RRR25XeEMwNHJQQ0t5L1o3emhZemNEN0pjNzJhWVVnNnF0b2lpRWU4VzJHCnVrd3BiYmVYZ3M1UDBHRXdVZWhtN1QyTVNTd3Nzank3RjNEYnVwNzBsSzY5UC9CSmZvdGhsSmVLaEtFNm50dnAKTW9iRjVDWXNlK3Foamw5NHNIVGV1b1dOMllBSDNwUUFFUXVzeWVoQ1J2dmxWd1czZytwajRyQXFDYTd2d2JsdApMOVZRWTgwUnhCNGVucU1lTmkyV0YzYz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+#   tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBMlMvTWIxc0hicTExV3A3ZHFaZUl4TnJ1WUN6aDhCQjZVMEZZa0pjc3ZTem10bDNXCnFLSHFvTEVSMXBDcGs3Q2tUK3NqVUdEZzJ3M002ZWVabXpRU0dSNEdoVUdoMFBWamgyLzZHYU9PQ0JKeHB3NW4KRzhGYm5pakJLcVdsRW9tYXRaWDU2cFBhTFJydENuV1I5Y29VNXRFRFFUMkdoa0wvSW9tODlSUmdxdjR4eEVWVgo3WkNnSlp4dnQwZTlSN2p0S3BqRmQ3Uy9qSlUvb2U2RFJ0aWxlTHlRZW5ERlRxcHRGWFpNcjVsNFhlZU9WeExTCkV3NklvaXN4RkhKcHZDQ2lESjhTTzZSVjNlSWtveEFYZ3dUSWlVNzJ4c2xweFpEck1LNFZvc0xFNFhuazA3NjAKd3VRODNIVGdSbDNtd2M2cWVLM01EeUlDOFNxSzRuN2VGbVh0d0pzSldXSG1QTmVMWWFSdmtBcWpXTG1CMzhzLwo0L0kyZmhrVWFUeThFMVB4TWxCL0tRNkRMK2duUU5hOHNTaWhOendjeWtPWEJjY2dRU2U4MVkyTUpYbmZhdUU1CnpMVnkwTStQMEtUd0xXRkNQcEhwVVY2N3pyNjBvOGFOcUFZbzZIQ2gzSnBJRE5BQzFVYnIrRloxbmNkL3VxS3IKbkpiTVc0TFlPL1dMajVybW9MdFdvZVJnUG9lUHcvMmw0ejJzSjNOc0UzU2h2UG94OFlyYnlTUW1EZHFYRG9oLwpVVHVqZUdCaVR1MzNOQjNTVGtvQ1ROelJHNnpIeUxhemNPWUl3bmxQdXZMbmVuU0tKeGxQK2dPbGEwZXNjN3hhCkszSnBIc1NMWHI1ZXErNUlWSVRYRzEwYVFLbDg4ZXVEOXJGdk1Ya0FRWEp6bXUxMGUzYm4rdEZ1RGlFQ0F3RUEKQVFLQ0FnQXlJSHdZdjNQSnNiTkNSU1IzL2dlTkY5S28wL01aeTFQUVgyYW5pSnpFMU5ZekJSbUVOa3JHNTlkcwpKRnRmUVFmTGdrUFdTMlhhYVNjQVhYbndmbVltOGUwaldIQ1duK3htMkF0clczcHVsb013d1h3K3hiUDFud1ptClozRGdCRzUydHJURjFYWW5ydTFDMnJ2amRNNjZMMGVIQ1VKQlBybFFLV1k1VW9pMUxwSWg4TGJTYSt6cWdWNnYKZUpsUk1uZGF1NFBvQ3dtaTB0ZXE4amZPWkRaYzFYaXJLZGdBUGdtTFNKQ09mdWR2RlFDZlRESzhQMEI5M1dZbwpoL2VyZWdTczBSSU9QZkdya29ST05tcVd6TVhVR3l1TjJmTFZySXI3NDFJUERORVFFV2dsRHdEOWNsd3hyYkFOCnphSnkzTll2b0QxV3lNelJDTGFoYkJLcUxNQmdwTmRyMzk2VHNwTWlWQU5tRksrUi83VWJkT2FsWlZWTHMvalMKNzAydnJYMjdZd0xuUU5xM3hvU2ZvR3R4Ly9EbzY2YkkzRGc2blZwTmI0U3V6dFpHUHprOUw0c2ZEVWFzYmRVSwp2bG0xODNxSVprVlpWMmxvRXRqKzJCM0QzTkRIN0pWUWtHMmU2YmlpRXF2NTBTVE5rNEZ6dkp3czkyZS9XcmgxCmhVZ0xneStJckdMZzNVUFVKbDRMb1RtSEZPL1l0R3hGQ0VhemJzOHo4NS9XZWNtRjF6bGovVHFmSWx1dWVMYnkKdU5JaCtTZXc0Njljb2RnUGRkQTFKK0Y0TWFYdE5FMnBFME9iNnp3WGxsZXlSSWdhdE9vaHA4b2VCODZ1VVk4TgpVOHlQL21vZkZyU1NIOER4Q0pmU0c4Y2tYdkxaU3g3cXoxUTZOUk5wTW91ak9hRUNJUUtDQVFFQSt6Z1h1Y09SCjRsb1AxUC9RTDJ5Ukp2Q3Zmd01CQjl6bEI0ZTJvYmZOQnBIMjUxUGlWL1V6VGdVMjl5N3grc1haWFM0dnlQTXEKMWM3NWJiYkgxVVNaZW5XdGZuYjVwbHlDRzIxRlRSbTNobVloZEJ3dkVudDViT3VPTHc2K204aHZ6ZHZha2FlOQpJd0loK09STjlWQzlQZmF6OE1EcFVjcEV3enlXUHVqYStOQ2JxNjRsL2c2WjUzNXRZdUtVcmJNdlViT0xYeW9PCjNXQjFtdDVGSTd1ZjR3LytvbVF1RmFsb2pYcXNqZHEzM0hHOGFrYWErbkNzekZVVldxSFNHSUNId3N6U1grcEoKaWFtUURsK1o0eXR5akdSL2RJZ1VrVm05RGFlWWVVdVFwYkFJYVRhUFlLOEpkc2QyY3Avam9XTm12VTlVYWs4Ngo0Y0F0ek8yMm1zSGVsUUtDQVFFQTNWSG5oMlZTNWFSU3ZSaFEzUzdobEs1UUhhQkRGSzd5aytTbjZEYzhEMVkyCm9DS0o2RkFxOUV6Sms0dG5jL0ZhbktCNHBad2ZvUjBiQStGU2FGZjZxSmxid0lSL2xLQkg3Ti8wSGJZWWVxL0cKQ3cyZmRXWW12U3VYRkVsbG1RS0hHYUZVZm9Ubm1ldHBzZXJpdUJkMThRY3h0MHplbW5iOWpwQmZHOW4zczNkNQpNczBOdUFCeS85TEFaU0JpN245Qkd3azhvQXpCak5rRkF3MEVTN0lwY2FKS1BubTBqQTAwMEdqcHhGTGVCZnBZClYxbnUvc09vQkJpL1Z6ZkVVbzZDeGdpT0M5b3IwMnQxWTdRRExIUGtSUCtiK0VlRHZTSmViVkFLM2dwR2hxd0sKSi9RMUg3MDM2cktYNE5xWUh4OUFRZVlhbHFEN0wvODA0eUpxVGx6cVhRS0NBUUVBOFNKRVU4RE85TSt4eHFmTgpjdGZvODlHdkFtRWx5aUJUamtqTUdxcE1GL1JmWkdmMktLdHBsWWdYM0dlcFNTWkRuOWRIY3NGRjZuaUNucmNGClZVWkZjM0FsR2ZDbGJQUDZ4c3k1Nm1tMjZVQjY5L0pkbElZRVpYSXN4aXFHOXcwTGxETmx0czJsRkVkbHlIdU0KQU42QTUwczRLTzFpaDJsNVcxVjZlZVFVMnlPUmFOYitETUNESmRzS3NCSUEyRUhZTjduNUcxMUphMkM5UWV2Nwp2WExJNDdCa29BYzgzUG9CSzF3RzZScDV4UlUrMzF2cVFsMkkzNUVEc0QwSFp4Rm9QcWxQZlZWclJNSUhUbVNoClY1WkttMHVUczQwekFObDhSL0VJdjlTeWdQZFkrM1N0WndaY05URDhGc1kyUHFFazZxMk12NFpSWklPTTh0bHgKbjFaYmlRS0NBUUJ6R0g4Um1JM3R3dkVNU2JMejg4ZDRiTlpaTWRqd3pySjBXdnMrOWtxVHAwQXRNd2tJK1hmOQpLRm5FRTBFdnVKcG96Y013VE9yZC9LYnA4Nm5KZmNkckdxWHVqbmxTcjYvMzdkZWtBK2pqRkxvblVXUlZ4MVBxCkdOc3V2NlRJVjlvdWFBbnE2ZThQeXE5aXlVWXllbkRwY2RaVy92RGMzM2lwUlVkUTBwL1FneGRTWmZUMmRiVlkKZVI5NDk4aTdRdzUyb3UwV1JzdjVGWHRYeE5NeEVtd2ZIa2tDQ0lUdU9JZjR3amFmMUlDR0YxVU55RVZUMUNoeQpTUFJveFNXaDBWOE00YklOVTk1cXluMTM1a3VvT0hURHRUSkZnZHR1NW9xNHltRjhhMWVWL2E0aWJRdWJmK211CmNrWXR0MEJaSHdWcHYrS2Y1d1A2Ui93WEN2VEIzK3c1QW9JQkFRRExjU21nT20vcHQ5ZlN2MXdtengxN2I3R2MKeXA0TU9YOUhNRmRaSFlBOW5WU1UyY21QVnZpZCtKOHh4WGRNeEc2ZzM5OTk1eFREd2tRYXI5ZVVkVEExOUF2NQpaakE3aGVvcCtad0wzVm9nbDRQcHE3NnRuRWg2amJVTjlib1ZhdHNGUUYreENJbUI4Mnd4Q3R0QitTTEJ5Q1FFCkgyWlRBQm84ZlB1YlhSSzN6THFwVmxLOC8xUXREbWpVVXV3ZjlnOWVIdk9SVEhxbjZDdmN3TkNvM29YNE5yRVcKcm1YQ3NyKzlWNFlycnpmUUVqS2tWcy9pcTV2TzlkSEh0alFWb3BYaXUzbGhnKzVFTTFxTkVoczUwZTk4MC8wOAprbEk2Ti8waE9FV2JGZWJGc3VKZDlrK2JDcFdIQi9oMVl4N3lqcDF6NHB6MU1YQkdHN2YvNTlsT20xR1IKLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K
+# type: kubernetes.io/tls
+
+# ---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: coloringresshttps
+  namespace: color
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/cookie-based-affinity: "true"
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/backend-protocol: "https"
+    appgw.ingress.kubernetes.io/backend-hostname: "be.cptdaks.org"
+    appgw.ingress.kubernetes.io/appgw-trusted-root-certificate: "backend-tls"
+spec:
+  tls:
+  - hosts:
+    - fe.cptdaks.org
+    secretName: frontend-tls
+  # defaultBackend:
+  #   service:
+  #     name: redsvc
+  #     port:
+  #       number: 443
+  rules:
+  - host: fe.cptdaks.org
+    http:
+      paths:
+      - path: /admin*
+        backend:
+          service:
+            name: redsvc
+            port:
+              number: 443
+        pathType: Prefix
+      - path: /red
+        backend:
+          service:
+            name: redsvc
+            port:
+              number: 443
+        pathType: Exact
+      - path: /admin*
+        backend:
+          service:
+            name: redsvc
+            port:
+              number: 443
+        pathType: Prefix
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: coloringresshttpsdefault
+  namespace: color
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/backend-protocol: "https"
+    appgw.ingress.kubernetes.io/backend-hostname: "be.cptdaks.org"
+    appgw.ingress.kubernetes.io/appgw-trusted-root-certificate: "backend-tls"
+    appgw.ingress.kubernetes.io/backend-path-prefix: "/ssoauth/"
+spec:
+  tls:
+  - hosts:
+    - fe.cptdaks.org
+    secretName: frontend-tls
+  # defaultBackend:
+  #   service:
+  #     name: redsvc
+  #     port:
+  #       number: 443
+  rules:
+  - host: fe.cptdaks.org
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: redsvc
+            port:
+              number: 443
+        pathType: Exact
+# ---
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: coloringresshttp
+#   namespace: color
+#   annotations:
+#     kubernetes.io/ingress.class: azure/application-gateway
+#     appgw.ingress.kubernetes.io/backend-path-prefix: "/ssoauth/"
+# spec:
+#   rules:
+#   - host: test.cptdagw.org
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           service:
+#             name: greensvc
+#             port:
+#               number: 80
+#         pathType: Exact
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: coloringressdefault
+#   annotations:
+#     kubernetes.io/ingress.class: azure/application-gateway
+#     appgw.ingress.kubernetes.io/backend-path-prefix: "/ssoauth/"
+# spec:
+#   defaultBackend:
+#     service:
+#       name: redapp
+#       port:
+#         number: 443

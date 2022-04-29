@@ -20,12 +20,12 @@ let socketDetails = {
 
 // Option of the SSL server
 const optionsSSL = {
-  key: fs.readFileSync('./openssl/srv.key'),
-  cert: fs.readFileSync('./openssl/srv.crt'),
+  key: fs.readFileSync('./openssl/be.cptdaks.key'),
+  cert: fs.readFileSync('./openssl/be.cptdaks.crt'),
   requestCert: true,
   rejectUnauthorized: false, // so we can do own error handling
   ca: [
-    fs.readFileSync('./openssl/ca.crt')
+    fs.readFileSync('./openssl/be.cptdaks.crt')
   ]
 };
 
@@ -40,6 +40,7 @@ serverSSL.on('request',(req,res)=>{
     socketDetails.rport = req.socket.remotePort;
     console.log(JSON.stringify(socketDetails, null, '\t'))
     res.write(`<body bgcolor="${color}">\n`);
+    res.write(`Incoming Request URL: ${req.url}\n`)
     res.write(`in:${f},out:${fibo(f)}\n`);
     res.write(`${JSON.stringify(req.headers, null, '\t')}\n`);
     res.write(`${JSON.stringify(socketDetails, null, '\t')}\n`);    
@@ -66,6 +67,7 @@ server.on('request',(req,res)=>{
     console.log(JSON.stringify(socketDetails, null, '\t'))
     res.write(`<body bgcolor="${color}">\n`);
     res.write(`in:${f},out:${fibo(f)}\n`);
+    res.write(`Incoming Request URL: ${req.url}\n`)
     res.write(`${JSON.stringify(req.headers, null, '\t')}\n`);
     res.write(`${JSON.stringify(socketDetails, null, '\t')}\n`);   
     res.write(`</body>\n`);
