@@ -484,3 +484,7 @@ spec:
 ~~~
 
 
+
+### git
+git status
+git add *

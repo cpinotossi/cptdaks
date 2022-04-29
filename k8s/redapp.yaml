@@ -49,7 +49,7 @@ metadata:
   namespace: red
   annotations:
     kubernetes.io/ingress.class: azure/application-gateway
-    appgw.ingress.kubernetes.io/waf-policy-for-path: /subscriptions/f474dec9-5bab-47a3-b4d3-e641dac87ddb/resourceGroups/cptdaks/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/cptdaksred
+    appgw.ingress.kubernetes.io/waf-policy-for-path: /subscriptions/000000000000000000/resourceGroups/cptdaks/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/cptdaksred
 spec:
   rules:
   - host: red.cptdaks.org
