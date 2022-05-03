@@ -107,11 +107,6 @@ spec:
   - hosts:
     - fe.cptdaks.org
     secretName: frontend-tls
-  # defaultBackend:
-  #   service:
-  #     name: redsvc
-  #     port:
-  #       number: 443
   rules:
   - host: fe.cptdaks.org
     http:
@@ -143,6 +138,35 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: coloringresshttpscs
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    # appgw.ingress.kubernetes.io/rewrite-rule-set: cs-rewrite-ruleset
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/backend-protocol: "https"
+    appgw.ingress.kubernetes.io/backend-hostname: "be.cptdaks.org"
+    appgw.ingress.kubernetes.io/appgw-trusted-root-certificate: "backend-tls"
+spec:
+  tls:
+  - hosts:
+      - fe.cptdaks.org
+    secretName: frontend-tls
+  rules:
+  - host: fe.cptdaks.org
+    http:
+      paths:
+      - path: /cs/*
+        backend:
+          service:
+            name: redsvc
+            port:
+              number: 443
+        pathType: Prefix
+        
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   name: coloringresshttpsdefault
   namespace: color
   annotations:
@@ -157,56 +181,14 @@ spec:
   - hosts:
     - fe.cptdaks.org
     secretName: frontend-tls
-  # defaultBackend:
-  #   service:
-  #     name: redsvc
-  #     port:
-  #       number: 443
   rules:
   - host: fe.cptdaks.org
     http:
       paths:
-      - path: /
+      - path: /*
         backend:
           service:
             name: redsvc
             port:
               number: 443
-        pathType: Exact
-# ---
-
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: coloringresshttp
-#   namespace: color
-#   annotations:
-#     kubernetes.io/ingress.class: azure/application-gateway
-#     appgw.ingress.kubernetes.io/backend-path-prefix: "/ssoauth/"
-# spec:
-#   rules:
-#   - host: test.cptdagw.org
-#     http:
-#       paths:
-#       - path: /
-#         backend:
-#           service:
-#             name: greensvc
-#             port:
-#               number: 80
-#         pathType: Exact
-
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: coloringressdefault
-#   annotations:
-#     kubernetes.io/ingress.class: azure/application-gateway
-#     appgw.ingress.kubernetes.io/backend-path-prefix: "/ssoauth/"
-# spec:
-#   defaultBackend:
-#     service:
-#       name: redapp
-#       port:
-#         number: 443
+        pathType: Prefix

@@ -108,7 +108,12 @@ az group delete -n $prefix -y
 ---
 ## AKS, AGW and the Rule Path Engine
 
-based on: https://azure.github.io/application-gateway-kubernetes-ingress/tutorials/tutorial.e2e-ssl/
+based on: 
+- https://azure.github.io/application-gateway-kubernetes-ingress/tutorials/tutorial.e2e-ssl/
+- https://docs.microsoft.com/en-us/azure/aks/ingress-own-tls?tabs=azure-cli
+- (Why we need HTTP redirect with AGIC and TLS)[https://github.com/Azure/application-gateway-kubernetes-ingress/issues/540]
+- (Kubernetes Docs Ingress)[https://kubernetes.io/docs/concepts/services-networking/ingress/]
+- (Stackoverflow: Kubernetes Ingress ROOT Path to Different Service)[https://stackoverflow.com/questions/64789642/kubernetes-ingress-root-path-to-different-service]
 
 We like to mimic the following flow use cases:
 
@@ -216,7 +221,8 @@ k create ns color # create namespace color.
 k create secret tls frontend-tls --key="openssl/fe.cptdaks.key" --cert="openssl/fe.cptdaks.crt" -n color
 k create secret tls backend-tls --key="openssl/be.cptdaks.key" --cert="openssl/be.cptdaks.crt" -n color
 k get secret -n color # Check if the secrets are created correctly.
-k apply -f k8s/nas/colorapp.yaml # Apply again, this time we should see ingress to be configred
+k apply -f k8s/colorapp.yaml # Apply again, this time we should see ingress to be configred
+# You will need to wait a few second before executing the following command.
 k exec -it redapp -n color -- curl -v -k https://localhost:4040/ # test https on pod directly
 k exec -it redapp -n color -- curl -v http://localhost:8080/ # test http on pod directly
 ~~~
@@ -226,6 +232,8 @@ Verify if the corresponding AGW resources have been created via AGIC.
 ~~~ bash
 az network application-gateway show -g $prefix -n $prefix --query backendAddressPools[].name # we expect two backendAddressPools.
 az network application-gateway show -g $prefix -n $prefix --query backendHttpSettingsCollection[].name # we expect three backendHttpSettingsCollection.
+az network application-gateway show -g $prefix -n $prefix --query urlPathMaps[].name # we expect 4 paths entries.
+
 az network application-gateway show -g $prefix -n $prefix --query urlPathMaps[].pathRules[].paths[] # we expect 4 paths entries.
 ~~~
 
@@ -241,9 +249,19 @@ curl -k -v -H"host: fe.cptdaks.org" https://$agwpubip/red # We expect an 200 OK 
 # use case ssl-redirect
 curl -s -o /dev/null -w "%{http_code}" -H"host: fe.cptdaks.org" http://$agwpubip/ # We expect an 301 from http to https from AGW.
 curl -s -o /dev/null -w "%{http_code}" -H"host: fe.cptdaks.org" http://$agwpubip/red # We expect an 301 from http to https from AGW.
+curl -s -v  -H"host: fe.cptdaks.org" http://$agwpubip/cs/test # We expect an 301 from http to https from AGW.
+curl -s -v -k -H"host: fe.cptdaks.org" https://$agwpubip/cs/test # We expect an 301 from http to https from AGW.
+
 ~~~
 ---
 ## Tips
+
+### How to verify AGIC logs
+
+~~~ bash
+ k get pods -A # look for pod ingress-appgw-deployment-something
+ k logs -f -n kube-system ingress-appgw-deployment-6dcc56b6c5-pxx25
+
 
 ### Base64 and Certs
 
